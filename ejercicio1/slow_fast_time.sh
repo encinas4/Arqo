@@ -1,14 +1,11 @@
 #!/bin/bash
 
 # inicializar variables
-Ninicio=7120
+Ninicio=15120
 Npaso=64
-Nfinal=8144
+Nfinal=16144 
 fDAT=slow_fast_time.dat
 fPNG=slow_fast_time.png
-SizeCacheI=1024
-SizeCacheF=8196
-Spaso=1024
 
 # borrar el fichero DAT y el fichero PNG
 rm -f $fDAT fPNG
@@ -18,18 +15,17 @@ touch $fDAT
 
 echo "Running slow and fast..."
 # bucle para N desde P hasta Q
-for N in $(seq $Ninicio $Npaso $Nfinal);do
+for N in $(seq $Ninicio $Npaso $Nfinal); do
 	echo "N: $N / $Nfinal..."
 
 	# ejecutar los programas slow y fast consecutivamente con tamaño de matriz N
 	# para cada uno, filtrar la línea que contiene el tiempo y seleccionar la
 	# tercera columna (el valor del tiempo). Dejar los valores en variables
 	# para poder imprimirlos en la misma línea del fichero de datos
-	for S in $(seq $SizeCacheI $Spaso $SizeCacheF);do
-		slowTime=$(valgrind --tool=callgrind --I1=$S,1,64 --D1=$S,1,64 --LL=8388608,1,64 ./slow $N | grep 'time' | awk '{print $3}')
-		fastTime=$(valgrind --tool=callgrind --I1=$S,1,64 --D1=$S,1,64 --LL=8388608,1,64 ./fast $N | grep 'time' | awk '{print $3}')
-		echo "$N	$slowTime	$fastTime" >> $fDAT
-	done
+	slowTime=$(./slow $N | grep 'time' | awk '{print $3}')
+	fastTime=$(./fast $N | grep 'time' | awk '{print $3}')
+
+	echo "$N	$slowTime	$fastTime" >> $fDAT
 done
 
 echo "Generating plot..."
