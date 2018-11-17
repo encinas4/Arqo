@@ -11,7 +11,7 @@ SizeCacheF=8196
 Spaso=1024
 
 # borrar el fichero DAT y el fichero PNG
-rm -f $fDAT fPNG
+rm -f $fDAT $fPNG
 
 # generar el fichero DAT vacío
 touch $fDAT

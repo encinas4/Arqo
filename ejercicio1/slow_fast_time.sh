@@ -1,25 +1,22 @@
-#!/bin/bash
-
 # inicializar variables
-Ninicio=1
+Ninicio=65
 Npaso=64
-Nfinal=300
-auxS=0
-auxF=0
+Nfinal=3201
 fDAT=slow_fast_time.dat
 fPNG=slow_fast_time.png
-#fDAT=slow_fast_time.dat
-#fPNG=slow_fast_time.png
 
 # borrar el fichero DAT y el fichero PNG
-rm -f $fDAT fPNG
+rm -f $fDAT $fPNG
+rm -f slowTime.dat
+rm -f fastTime.dat
 
 # generar el fichero DAT vacío
 
+
 for i in $(seq 1 1 10); do
 	echo "Running slow and fast 10 times..."
-	touch "slowTime$i.dat"
-	touch "fastTime$i.dat"
+	touch "slowTime.dat"
+	touch "fastTime.dat"
 	# bucle para N desde Ninicio hasta Nfinal
 	for N in $(seq $Ninicio $Npaso $Nfinal); do
 		echo "N: $N / $Nfinal the slow program..."
@@ -29,9 +26,10 @@ for i in $(seq 1 1 10); do
 		# tercera columna (el valor del tiempo). Dejar los valores en variables
 		# para poder imprimirlos en la misma línea del fichero de datos
 		slowTime=$(./slow $N | grep 'time' | awk '{print $3}')
-		slow$i$N=$slowTime
-		echo "$N	$slowTime" >> slowTime$i.dat
+
+		echo "$N	$slowTime" >> slowTime.dat
 	done
+
 	# bucle para N desde Ninicio hasta Nfinal
 	for N in $(seq $Ninicio $Npaso $Nfinal); do
 		echo "N: $N / $Nfinal the fast programm..."
@@ -41,26 +39,19 @@ for i in $(seq 1 1 10); do
 		# tercera columna (el valor del tiempo). Dejar los valores en variables
 		# para poder imprimirlos en la misma línea del fichero de datos
 		fastTime=$(./fast $N | grep 'time' | awk '{print $3}')
-		fast$i$N=$fastTime
-		echo "$N	$fastTime" >> fastTime$i.dat
+
+		echo "$N	$fastTime" >> fastTime.dat
 	done
 done
+
+touch $fDAT
 
 for N in $(seq $Ninicio $Npaso $Nfinal); do
-	auxS$N=0
-	auxF$N=0
-	for i in $(seq 1 1 10); do
-		auxS$N+=slow$i$N
-		auxF$N+=fast$i$N
-	done
-	auxS=auxS$N/10
-	auxF=auxF$N/10
+	slowtime=$(grep -n $N slowTime.dat | awk '{suma += $2} END {print suma/NR}')
+	fasttime=$(grep -n $N fastTime.dat | awk '{suma += $2} END {print suma/NR}')
 
-	echo "$N	$auxS	$auxF" >> $fDAT
+ 	echo "$N  $slowtime  $fasttime" >> $fDAT
 done
-
-
-
 #Ahora hay que calcular la media de cada fichero slow y fast con un numero y volcarlo en otro fichero que tenga todas las medias y plotearlo
 
 echo "Generating plot..."
@@ -74,8 +65,8 @@ set key right bottom
 set grid
 set term png
 set output "$fPNG"
-plot "$slowTime$i.dat" using 1:2 with lines lw 2 title "slow", \
-     "$fastTime$i.dat" using 1:3 with lines lw 2 title "fast"
+plot "$fDAT" using 1:2 with lines lw 2 title "slow", \
+     "$fDAT" using 1:3 with lines lw 2 title "fast"
 replot
 quit
 END_GNUPLOT
