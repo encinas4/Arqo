@@ -1,26 +1,20 @@
 #!/bin/bash
 
- inicializar variables
- # inicialmente era 1706 a 1792
- Ninicio=384
- Npaso=16
- Nfinal=428
+#inicializar variables
+#NOTA: Con 256 era 1706 a 1792
+Ninicio=384
+Npaso=16
+Nfinal=428
 
-# Ninicio=1
-# Npaso=32
-# Nfinal=33
+#Ninicio=1
+#Npaso=32
+#Nfinal=33
 
-fDAT=cachem.dat
-fPNG=cache_read.png
-fPNG2=cache_write.png
-SizeCacheI=1024
-SizeCacheF=8196
-Spaso=1024
+fDAT=fail_time_cache.dat
+fPNG=fail_cache.png
+fPNG2=time_cache.png
 fDAT1=matN.dat
 fDAT2=matTr.dat
-fDAT3=cachem_4096.dat
-fDAT4=cachem_8192.dat
-
 
 # borrar el fichero DAT y el fichero PNG
 rm -f $fDAT $fDAT1 $fDAT2 $fDAT3 $fDAT4 $fPNG
@@ -32,7 +26,7 @@ touch $fDAT2
 touch $fDAT3
 touch $fDAT4
 
-echo "Running slow and fast..."
+echo "Running Multication matrix normal..."
 # bucle para N desde P hasta Q
 for N in $(seq $Ninicio $Npaso $Nfinal);do
 	echo "N: $N / $Nfinal..."
@@ -47,6 +41,7 @@ for N in $(seq $Ninicio $Npaso $Nfinal);do
 	echo "$N $time1 $slowTime5 $slowTime8" >> $fDAT1
 done
 
+echo "Running Multication matrix trasp..."
 for N in $(seq $Ninicio $Npaso $Nfinal);do
 	echo "N: $N / $Nfinal..."
 
@@ -58,56 +53,51 @@ for N in $(seq $Ninicio $Npaso $Nfinal);do
 	time2=$(valgrind --tool=cachegrind --cachegrind-out-file=multTr.out.dat --I1=8192,1,64 --D1=8192,1,64 --LL=8388608,1,64 ./multTr $N | grep 'time' | awk '{print $3}')
 	fastTime5=$(cg_annotate multTr.out.dat | grep PROGRAM | awk '{print $5}' | tr -d ',')
 	fastTime8=$(cg_annotate multTr.out.dat | grep PROGRAM | awk '{print $8}' | tr -d ',')
-	echo "$time2 $fastTime5 $fastTime8" >> $fDAT2
+	echo "$N $time2 $fastTime5 $fastTime8" >> $fDAT2
 done
 
+echo "Volcamos los datos de los dos ficheros en uno..."
+for N in $(seq $Ninicio $Npaso $Nfinal);do
+	time1=$(grep $N $fDAT1 | awk '{print $2}')
+  matN1=$(grep $N $fDAT1 | awk '{print $3}')
+  matN2=$(grep $N $fDAT1 | awk '{print $4}')
+  time2=$(grep $N $fDAT2 | awk '{print $2}')
+  matTr1=$(grep $N $fDAT2 | awk '{print $3}')
+  matTr2=$(grep $N $fDAT2 | awk '{print $4}')
 
-for for N in $(seq $Ninicio $Npaso $Nfinal);do
-	
+  echo "$N $time1 $matN1 $matN2 $time2 $matTr1 $matTr2" >> $fDAT
 done
 
-echo "Generating plot..."
+echo "Generating plot of Cache Fail related with size..."
 # llamar a gnuplot para generar el gráfico y pasarle directamente por la entrada
 # estándar el script que está entre "<< END_GNUPLOT" y "END_GNUPLOT"
 gnuplot << END_GNUPLOT
-set title "Cache Read"
+set title "Cache Fails related with size"
 set ylabel "Number of fails"
-set xlabel "Matrix Size"
+set xlabel "Matrix size"
 set key right bottom
 set grid
 set term png
 set output "$fPNG"
-
-plot "$fDAT1" using 1:2 with lines lw 2 title "multN1024", \
-		 "$fDAT2" using 1:2 with lines lw 2 title "multN2048", \
-		 "$fDAT3" using 1:2 with lines lw 2 title "multN4096", \
-		 "$fDAT4" using 1:2 with lines lw 2 title "multN8192", \
-     "$fDAT1" using 1:4 with lines lw 2 title "multTr1024", \
-		 "$fDAT2" using 1:4 with lines lw 2 title "multTr2048", \
-		 "$fDAT3" using 1:4 with lines lw 2 title "mulTr4096", \
-		 "$fDAT4" using 1:4 with lines lw 2 title "mulTr8192"
+plot "$fDAT" using 1:3 with lines lw 2 title "freadNormal", \
+     "$fDAT" using 1:4 with lines lw 2 title "fwriteNormal", \
+     "$fDAT" using 1:6 with lines lw 2 title "freadTrasp", \
+     "$fDAT" using 1:7 with lines lw 2 title "fwriteTrasp"
 replot
 quit
 END_GNUPLOT
-#
-# echo "Generating plot..."
+
+echo "Generating plot of Execution Time related with size..."
 gnuplot << END_GNUPLOT
-set title "Cache Write"
-set ylabel "Number of fails"
-set xlabel "Matrix Size"
+set title "Time related with size"
+set ylabel "Execution Time"
+set xlabel "Matrix size"
 set key right bottom
 set grid
 set term png
 set output "$fPNG2"
-
-plot "$fDAT1" using 1:3 with lines lw 2 title "slow1024", \
-		 "$fDAT2" using 1:3 with lines lw 2 title "slow2048", \
-		 "$fDAT3" using 1:3 with lines lw 2 title "slow4096", \
-		 "$fDAT4" using 1:3 with lines lw 2 title "slow8192", \
-     "$fDAT1" using 1:5 with lines lw 2 title "fast1024", \
-		 "$fDAT2" using 1:5 with lines lw 2 title "fast2048", \
-		 "$fDAT3" using 1:5 with lines lw 2 title "fast4096", \
-		 "$fDAT4" using 1:5 with lines lw 2 title "fast8192"
+plot "$fDAT" using 1:2 with lines lw 2 title "TimeNormal",\
+     "$fDAT" using 1:5 with lines lw 2 title "TimeTrasp"
 replot
 quit
 END_GNUPLOT
