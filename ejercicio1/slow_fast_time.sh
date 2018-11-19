@@ -1,7 +1,7 @@
 # inicializar variables
-Ninicio=65
+Ninicio=15120
 Npaso=64
-Nfinal=3201
+Nfinal=16144
 fDAT=slow_fast_time.dat
 fPNG=slow_fast_time.png
 
