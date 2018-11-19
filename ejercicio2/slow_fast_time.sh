@@ -1,9 +1,9 @@
 #!/bin/bash
 
-# inicializar variables
-# Ninicio=7120
-# Npaso=64
-# Nfinal=8144
+ inicializar variables
+ Ninicio=7120
+ Npaso=64
+ Nfinal=8144
 
 # Ninicio=1
 # Npaso=32
