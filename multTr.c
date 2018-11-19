@@ -66,7 +66,7 @@ void compute(tipo **matrix, tipo **matrix2, tipo **resultado, int n) {
 	for(i=0;i<n;i++) {
 		for(j=0;j<n;j++) {
       for(k=0, l=0; k<n && l<n; k++, l++){
-        resultado[i][j] += matrix[i][k]*matrix2[l][j];
+        resultado[j][i] += matrix[i][k]*matrix2[l][j];
         }
 			}
 	}
