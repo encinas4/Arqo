@@ -10,23 +10,23 @@
 # Npaso=32
 # Nfinal=33
 
-fDAT=cachem_
+fDAT=cachem.dat
 fPNG=cache_read.png
 fPNG2=cache_write.png
 SizeCacheI=1024
 SizeCacheF=8196
 Spaso=1024
-fDAT1=cachem_1024.dat
-fDAT2=cachem_2048.dat
+fDAT1=matN.dat
+fDAT2=matTr.dat
 fDAT3=cachem_4096.dat
 fDAT4=cachem_8192.dat
 
 
 # borrar el fichero DAT y el fichero PNG
-rm -f $fDAT1 $fDAT2 $fDAT3 $fDAT4 $fPNG
+rm -f $fDAT $fDAT1 $fDAT2 $fDAT3 $fDAT4 $fPNG
 
 # generar el fichero DAT vacío
-
+touch $fDAT
 touch $fDAT1
 touch $fDAT2
 touch $fDAT3
@@ -41,15 +41,29 @@ for N in $(seq $Ninicio $Npaso $Nfinal);do
 	# para cada uno, filtrar la línea que contiene el tiempo y seleccionar la
 	# tercera columna (el valor del tiempo). Dejar los valores en variables
 	# para poder imprimirlos en la misma línea del fichero de datos
-	for S in 1024 2048 4096 8192;do
-		valgrind --tool=cachegrind --cachegrind-out-file=multN.out.dat --I1=$S,1,64 --D1=$S,1,64 --LL=8388608,1,64 ./multN $N
-		valgrind --tool=cachegrind --cachegrind-out-file=multTr.out.dat --I1=$S,1,64 --D1=$S,1,64 --LL=8388608,1,64 ./multTr $N
-		slowTime5=$(cg_annotate multN.out.dat | grep PROGRAM | awk '{print $5}' | tr -d ',')
-		slowTime8=$(cg_annotate multN.out.dat | grep PROGRAM | awk '{print $8}' | tr -d ',')
-		fastTime5=$(cg_annotate multTr.out.dat | grep PROGRAM | awk '{print $5}' | tr -d ',')
-		fastTime8=$(cg_annotate multTr.out.dat | grep PROGRAM | awk '{print $8}' | tr -d ',')
-		echo "$N	$slowTime5 $slowTime8 $fastTime5	$fastTime8" >> $fDAT$S.dat
-	done
+	time1=$(valgrind --tool=cachegrind --cachegrind-out-file=multN.out.dat --I1=8192,1,64 --D1=8192,1,64 --LL=8388608,1,64 ./multN $N | grep 'time' | awk '{print $3}')
+	slowTime5=$(cg_annotate multN.out.dat | grep PROGRAM | awk '{print $5}' | tr -d ',')
+	slowTime8=$(cg_annotate multN.out.dat | grep PROGRAM | awk '{print $8}' | tr -d ',')
+	echo "$N $time1 $slowTime5 $slowTime8" >> $fDAT1
+done
+
+for N in $(seq $Ninicio $Npaso $Nfinal);do
+	echo "N: $N / $Nfinal..."
+
+	# ejecutar los programas slow y fast consecutivamente con tamaño de matriz N
+	# para cada uno, filtrar la línea que contiene el tiempo y seleccionar la
+	# tercera columna (el valor del tiempo). Dejar los valores en variables
+	# para poder imprimirlos en la misma línea del fichero de datos
+
+	time2=$(valgrind --tool=cachegrind --cachegrind-out-file=multTr.out.dat --I1=8192,1,64 --D1=8192,1,64 --LL=8388608,1,64 ./multTr $N | grep 'time' | awk '{print $3}')
+	fastTime5=$(cg_annotate multTr.out.dat | grep PROGRAM | awk '{print $5}' | tr -d ',')
+	fastTime8=$(cg_annotate multTr.out.dat | grep PROGRAM | awk '{print $8}' | tr -d ',')
+	echo "$time2 $fastTime5 $fastTime8" >> $fDAT2
+done
+
+
+for for N in $(seq $Ninicio $Npaso $Nfinal);do
+	
 done
 
 echo "Generating plot..."
