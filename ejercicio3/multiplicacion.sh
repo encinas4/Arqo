@@ -10,21 +10,19 @@ Nfinal=428
 #Npaso=32
 #Nfinal=33
 
-fDAT=fail_time_cache.dat
-fPNG=fail_cache.png
-fPNG2=time_cache.png
+fDAT=mult.dat
+fPNG1=mult_cache.png
+fPNG2=mult_time.png
 fDAT1=matN.dat
 fDAT2=matTr.dat
 
 # borrar el fichero DAT y el fichero PNG
-rm -f $fDAT $fDAT1 $fDAT2 $fDAT3 $fDAT4 $fPNG
+rm -f $fDAT $fPNG1 $fPNG2
 
 # generar el fichero DAT vacío
 touch $fDAT
 touch $fDAT1
 touch $fDAT2
-touch $fDAT3
-touch $fDAT4
 
 echo "Running Multication matrix normal..."
 # bucle para N desde P hasta Q
@@ -68,6 +66,8 @@ for N in $(seq $Ninicio $Npaso $Nfinal);do
   echo "$N $time1 $matN1 $matN2 $time2 $matTr1 $matTr2" >> $fDAT
 done
 
+rm -f $fDAT1 $fDAT2
+
 echo "Generating plot of Cache Fail related with size..."
 # llamar a gnuplot para generar el gráfico y pasarle directamente por la entrada
 # estándar el script que está entre "<< END_GNUPLOT" y "END_GNUPLOT"
@@ -78,7 +78,7 @@ set xlabel "Matrix size"
 set key right bottom
 set grid
 set term png
-set output "$fPNG"
+set output "$fPNG1"
 plot "$fDAT" using 1:3 with lines lw 2 title "freadNormal", \
      "$fDAT" using 1:4 with lines lw 2 title "fwriteNormal", \
      "$fDAT" using 1:6 with lines lw 2 title "freadTrasp", \

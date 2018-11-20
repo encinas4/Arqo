@@ -2,8 +2,8 @@
 Ninicio=15120
 Npaso=64
 Nfinal=16144
-fDAT=slow_fast_time.dat
-fPNG=slow_fast_time.png
+fDAT=time_slow_fast.dat
+fPNG=time_slow_fast.png
 
 # borrar el fichero DAT y el fichero PNG
 rm -f $fDAT $fPNG

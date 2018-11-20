@@ -4,16 +4,18 @@
 
 #include "arqo3.h"
 
-void compute(tipo **matrix, tipo **matrix2, tipo **resultado, int n);
+void compute(tipo **matrix, tipo **matrix2, tipo **traspuesta, tipo **resultado, int n);
 
 int main( int argc, char *argv[])
 {
 	int n;
 	tipo **m=NULL;
   tipo **m2=NULL;
+	tipo **m2tr=NULL;
   tipo **res=NULL;
-	struct timeval fin,ini;
 
+	struct timeval fin,ini;
+	
 
 	printf("Word size: %ld bits\n",8*sizeof(tipo));
 
@@ -25,12 +27,18 @@ int main( int argc, char *argv[])
 	n=atoi(argv[1]);
 	m=generateMatrix(n);
   m2=generateMatrix(n);
-  res=generateEmptyMatrix(n);
+	m2tr=generateEmptyMatrix(n);
+	res=generateEmptyMatrix(n);
+
 	if( !m )
 	{
 		return -1;
 	}
   if( !m2 )
+	{
+		return -1;
+	}
+  if( !m2tr )
 	{
 		return -1;
 	}
@@ -43,7 +51,7 @@ int main( int argc, char *argv[])
 	gettimeofday(&ini,NULL);
 
 	/* Main computation */
-	compute(m, m2, res, n);
+	compute(m, m2, m2tr, res, n);
 	/* End of computation */
 
 	gettimeofday(&fin,NULL);
@@ -54,21 +62,28 @@ int main( int argc, char *argv[])
 
 	free(m);
 	free(m2);
+	free(m2tr);
 	free(res);
 	return 0;
 }
 
 
-void compute(tipo **matrix, tipo **matrix2, tipo **resultado, int n) {
+void compute(tipo **matrix, tipo **matrix2, tipo **traspuesta, tipo **resultado, int n)	 {
 
 	int i,j,k ,l;
+
+	for(i=0;i<n;i++){
+		for(j=0;j<n;j++){
+			traspuesta[j][i]= matrix2[i][j];
+		}
+	}
 
 	for(i=0;i<n;i++) {
 		for(j=0;j<n;j++) {
       for(k=0, l=0; k<n && l<n; k++, l++){
-        resultado[j][i] += matrix[i][k]*matrix2[l][j];
-        }
-			}
+        resultado[i][j] += matrix[i][k]*traspuesta[j][l];
+      }
+		}
 	}
 
 }

@@ -1,25 +1,21 @@
 #!/bin/bash
 
  inicializar variables
- # inicialmente era 1706 a 1792
- Ninicio=384
- Npaso=16
- Nfinal=428
+ Ninicio=7120
+ Npaso=64
+ Nfinal=8144
 
 # Ninicio=1
 # Npaso=32
 # Nfinal=33
 
-fDAT=cachem_
-fPNG=cache_read.png
-fPNG2=cache_write.png
-SizeCacheI=1024
-SizeCacheF=8196
-Spaso=1024
-fDAT1=cachem_1024.dat
-fDAT2=cachem_2048.dat
-fDAT3=cachem_4096.dat
-fDAT4=cachem_8192.dat
+fDAT=cache_
+fPNG=cache_lectura.png
+fPNG2=cache_escritura.png
+fDAT1=cache_1024.dat
+fDAT2=cache_2048.dat
+fDAT3=cache_4096.dat
+fDAT4=cache_8192.dat
 
 
 # borrar el fichero DAT y el fichero PNG
@@ -42,12 +38,12 @@ for N in $(seq $Ninicio $Npaso $Nfinal);do
 	# tercera columna (el valor del tiempo). Dejar los valores en variables
 	# para poder imprimirlos en la misma línea del fichero de datos
 	for S in 1024 2048 4096 8192;do
-		valgrind --tool=cachegrind --cachegrind-out-file=multN.out.dat --I1=$S,1,64 --D1=$S,1,64 --LL=8388608,1,64 ./multN $N
-		valgrind --tool=cachegrind --cachegrind-out-file=multTr.out.dat --I1=$S,1,64 --D1=$S,1,64 --LL=8388608,1,64 ./multTr $N
-		slowTime5=$(cg_annotate multN.out.dat | grep PROGRAM | awk '{print $5}' | tr -d ',')
-		slowTime8=$(cg_annotate multN.out.dat | grep PROGRAM | awk '{print $8}' | tr -d ',')
-		fastTime5=$(cg_annotate multTr.out.dat | grep PROGRAM | awk '{print $5}' | tr -d ',')
-		fastTime8=$(cg_annotate multTr.out.dat | grep PROGRAM | awk '{print $8}' | tr -d ',')
+		valgrind --tool=cachegrind --cachegrind-out-file=slow.out.dat --I1=$S,1,64 --D1=$S,1,64 --LL=8388608,1,64 ./slow $N
+		valgrind --tool=cachegrind --cachegrind-out-file=fast.out.dat --I1=$S,1,64 --D1=$S,1,64 --LL=8388608,1,64 ./fast $N
+		slowTime5=$(cg_annotate slow.out.dat | grep PROGRAM | awk '{print $5}' | tr -d ',')
+		slowTime8=$(cg_annotate slow.out.dat | grep PROGRAM | awk '{print $8}' | tr -d ',')
+		fastTime5=$(cg_annotate fast.out.dat | grep PROGRAM | awk '{print $5}' | tr -d ',')
+		fastTime8=$(cg_annotate fast.out.dat | grep PROGRAM | awk '{print $8}' | tr -d ',')
 		echo "$N	$slowTime5 $slowTime8 $fastTime5	$fastTime8" >> $fDAT$S.dat
 	done
 done
@@ -63,15 +59,14 @@ set key right bottom
 set grid
 set term png
 set output "$fPNG"
-
-plot "$fDAT1" using 1:2 with lines lw 2 title "multN1024", \
-		 "$fDAT2" using 1:2 with lines lw 2 title "multN2048", \
-		 "$fDAT3" using 1:2 with lines lw 2 title "multN4096", \
-		 "$fDAT4" using 1:2 with lines lw 2 title "multN8192", \
-     "$fDAT1" using 1:4 with lines lw 2 title "multTr1024", \
-		 "$fDAT2" using 1:4 with lines lw 2 title "multTr2048", \
-		 "$fDAT3" using 1:4 with lines lw 2 title "mulTr4096", \
-		 "$fDAT4" using 1:4 with lines lw 2 title "mulTr8192"
+plot "$fDAT1" using 1:2 with lines lw 2 title "slow1024", \
+		 "$fDAT2" using 1:2 with lines lw 2 title "slow2048", \
+		 "$fDAT3" using 1:2 with lines lw 2 title "slow4096", \
+		 "$fDAT4" using 1:2 with lines lw 2 title "slow8192", \
+     "$fDAT1" using 1:4 with lines lw 2 title "fast1024", \
+		 "$fDAT2" using 1:4 with lines lw 2 title "fast2048", \
+		 "$fDAT3" using 1:4 with lines lw 2 title "fast4096", \
+		 "$fDAT4" using 1:4 with lines lw 2 title "fast8192"
 replot
 quit
 END_GNUPLOT
@@ -85,7 +80,6 @@ set key right bottom
 set grid
 set term png
 set output "$fPNG2"
-
 plot "$fDAT1" using 1:3 with lines lw 2 title "slow1024", \
 		 "$fDAT2" using 1:3 with lines lw 2 title "slow2048", \
 		 "$fDAT3" using 1:3 with lines lw 2 title "slow4096", \
