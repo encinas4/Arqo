@@ -6,52 +6,38 @@
 #$ -pe openmp 16
 fDAT=serie.dat
 fDAT2=paralelo.dat
-fDATAUX=auxiliar.dat
-
-rm -f $fDAT $fDAT2 $fDATAUX
-touch $fDAT $fDAT2 $fDATAUX
+fDATAUX=auxiliar
+# $fDAT $fDAT2
+rm -f  $fDATAUX
+touch  $fDATAUX
 # 50000000 75000000 100000000 250000000 500000000 750000000 1000000000 1002000000
-echo "Ejecutando pescalar_serie..."
-for S in 10000000 25000000 ;do
-  for T in $(seq 1 1 5);do
-    serie=$(./pescalar_serie_1 $S | grep 'Tiempo:' | awk '{print $2}')
-    echo "0	$S $serie" >> $fDAT
-  done
-done
-
-echo "Ejecutando pescalar_paralelo2..."
-for N in $(seq 14 1 16);do
-  export OMP_NUM_THREADS=$N
-  for S in 10000000 25000000 ;do
-    for T in $(seq 1 1 3);do
-      paralelo=$(./pescalar_par2_1 $S | grep 'Tiempo:' | awk '{print $2}')
-      echo "$N	$S $paralelo" >> $fDAT2
-    done
-  done
-done
-
-#echo "Suavizando los tiempos de serie..."
-#for N in $(seq 1 1 16);do
-#  for S in 10000000 25000000 50000000 75000000 100000000 250000000 500000000 750000000 1000000000 1002000000;do
-#    time=$(grep -n $N serie.dat | awk 'if($2==$S){{suma += $3} END {print suma/NR}}')
-#    echo "S  $S  $time 0" >> $fDATAUX
-#  done
-
-#echo "Suavizando los tiempos de paralelo..."
-#  for S in 10000000 25000000 50000000 75000000 100000000 250000000 500000000 750000000 1000000000 1002000000;do
-#    time=$(grep -n $N paralelo.dat | awk 'if($2==$S){{suma += $3} END {print suma/NR}}')
-#    echo "P$N  $S  $time $acel" >> $fDATAUX
-#  done
-#done
+# echo "Ejecutando pescalar_serie..."
+# for S in 10000000 25000000 ;do
+#   for T in $(seq 1 1 5);do
+#     serie=$(./pescalar_serie_1 $S | grep 'Tiempo:' | awk '{print $2}')
+#     echo "0	$S $serie" >> $fDAT
+#   done
+# done
+#
+# echo "Ejecutando pescalar_paralelo2..."
+# for N in $(seq 14 1 16);do
+#   export OMP_NUM_THREADS=$N
+#   for S in 10000000 25000000 ;do
+#     for T in $(seq 1 1 3);do
+#       paralelo=$(./pescalar_par2_1 $S | grep 'Tiempo:' | awk '{print $2}')
+#       echo "P$N	$S $paralelo" >> $fDAT2
+#     done
+#   done
+# done
 
 for S in 10000000 25000000;do
   time=$(grep $S $fDAT | awk '{suma += $3} END {print suma/NR}')
-  echo "S  $S  $time  0" >> $fDATAUX
+  echo "S  $S  $time  0" >> $fDATAUX.dat
 
   for N in $(seq 14 1 16);do
     time2=$(grep P$N $fDAT2 | grep $S | awk '{suma += $3} END {print suma/NR}')
-    acel=$(bc <<< "scale=2; $time1/$time2")
-    echo "P$N  $S  $time  $acel" >> $fDATAUX
+    acel=$(bc <<< "scale=10; $time1/$time2")
+    echo "$S  $time $acel" >> $fDATAUX$N.dat
   done
 done
 
