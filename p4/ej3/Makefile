@@ -6,16 +6,16 @@ FLAGS = -g -lgomp -Wall -D_GNU_SOURCE -fopenmp
 
 all:  multN_serie multN_par1 multN_par2 multN_par3
 
-multN_serie: multN_serie.c arqo3.c
+multN_serie: multN_serie.c arqo4.c
 	gcc $(FLAGS) $(LIB_DIR) -o $@ $^ $(LIBS)
 
-multN_par1: multN_par1.c arqo3.c
+multN_par1: multN_par1.c arqo4.c
 	gcc $(FLAGS) $(LIB_DIR) -o $@ $^ $(LIBS)
 
-multN_par2: multN_par2.c arqo3.c
+multN_par2: multN_par2.c arqo4.c
 	gcc $(FLAGS) $(LIB_DIR) -o $@ $^ $(LIBS)
 
-multN_par3: multN_par3.c arqo3.c
+multN_par3: multN_par3.c arqo4.c
 	gcc $(FLAGS) $(LIB_DIR) -o $@ $^ $(LIBS)
 
 clean:
