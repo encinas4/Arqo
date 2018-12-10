@@ -4,34 +4,57 @@
 #$ -j y
 #$ -S /bin/bash
 #$ -pe openmp 16
-fDAT=multiplicacion.txt
+fDAT=serie_parte2.txt
+fDAT2=par_parte2.txt
+fPNG=tiempo.png
+fPNG2=aceleracion.png
 # $fDAT $fDAT2
+rm -f $fDAT2
 rm -f  $fDAT
 touch  $fDAT
 
-# for N in $(seq 1 1 4);do
-#     echo "iteracion $N"
-#     echo "Ejecutando multN_serie..."
-#     for S in $(seq 1000 600 1600);do
-#         serie=$(./multN_serie $S | grep 'time:' | awk '{print $2}')
-#         echo "serie	$S $serie" >> $fDAT
-#     done
-#     export OMP_NUM_THREADS=$N
-#     echo "Ejecutando multN_serie..."
-#     for S in $(seq 1000 600 1600);do
-#         bucle1=$(./multN_par1 $S | grep 'time:' | awk '{print $2}')
-#         echo "bucle1	$S $bucle1" >> $fDAT
-#     done
-#     echo "Ejecutando multN_serie..."
-#     for S in $(seq 1000 600 1600);do
-#         bucle2=$(./multN_par2 $S | grep 'time:' | awk '{print $2}')
-#         echo "bucle2	$S $bucle2" >> $fDAT
-#     done
-#     echo "Ejecutando multN_serie..."
-#     for S in $(seq 1000 600 1600);do
-#         bucle3=$(./multN_par3 $S | grep 'time:' | awk '{print $2}')
-#         echo "bucle3	$S $bucle3" >> $fDAT
-#     done
-# done
+export OMP_NUM_THREADS=4
+for S in $(seq 513 64 1537);do
+echo "Ejecutando multN_serie..."
 
-for 
+    serie=$(./multN_serie $S | grep 'time:' | awk '{print $2}')
+    echo "serie	$S $serie 1" >> $fDAT
+
+
+echo "Ejecutando multN_par3..."
+    bucle3=$(./multN_par3 $S | grep 'time:' | awk '{print $2}')
+    acel=$(echo "scale=5; $serie/$bucle3" | bc )
+    echo "bucle3	$S $bucle3 $acel" >> $fDAT2
+done
+
+
+echo "Generating plot..."
+gnuplot << END_GNUPLOT
+set title "Tiempo ejecucion en paralelo"
+set ylabel "Tiempo"
+set xlabel "Tamano Matriz"
+set key right bottom
+set grid
+set term png
+set output "$fPNG"
+plot "$fDAT" using 2:3 with lines lw 2 title "Serie",\
+   "$fDAT1" using 2:3 with lines lw 2 title "Bucle3"
+replot
+quit
+END_GNUPLOT
+# llamar a gnuplot para generar el gráfico y pasarle directamente por la entrada
+# estándar el script que está entre "<< END_GNUPLOT" y "END_GNUPLOT"
+gnuplot << END_GNUPLOT
+set title "Aceleracion respecto a serie"
+set ylabel "Veces mas rapido que en serie"
+set xlabel "Tamano Matriz"
+set key right bottom
+set grid
+set term png
+set output "$fPNG2"
+
+plot "$fDAT" using 2:4 with lines lw 2 title "Serie",\
+   "$fDAT1" using 2:4 with lines lw 2 title "Bucle3"
+replot
+quit
+END_GNUPLOT
