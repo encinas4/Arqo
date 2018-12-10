@@ -9,23 +9,23 @@ fDAT2=par_parte2.txt
 fPNG=tiempo.png
 fPNG2=aceleracion.png
 # $fDAT $fDAT2
-rm -f $fDAT2
-rm -f  $fDAT
-touch  $fDAT
+# rm -f $fDAT2
+# rm -f  $fDAT
+# touch  $fDAT $fDAT2
 
-export OMP_NUM_THREADS=4
-for S in $(seq 513 64 1537);do
-echo "Ejecutando multN_serie..."
-
-    serie=$(./multN_serie $S | grep 'time:' | awk '{print $2}')
-    echo "serie	$S $serie 1" >> $fDAT
-
-
-echo "Ejecutando multN_par3..."
-    bucle3=$(./multN_par3 $S | grep 'time:' | awk '{print $2}')
-    acel=$(echo "scale=5; $serie/$bucle3" | bc )
-    echo "bucle3	$S $bucle3 $acel" >> $fDAT2
-done
+# export OMP_NUM_THREADS=4
+# for S in $(seq 513 64 1537);do
+# echo "Ejecutando multN_serie..."
+#
+#     serie=$(./multN_serie $S | grep 'time:' | awk '{print $2}')
+#     echo "serie	$S $serie 1" >> $fDAT
+#
+#
+# echo "Ejecutando multN_par3..."
+#     bucle3=$(./multN_par3 $S | grep 'time:' | awk '{print $2}')
+#     acel=$(echo "scale=5; $serie/$bucle3" | bc )
+#     echo "bucle3	$S $bucle3 $acel" >> $fDAT2
+# done
 
 
 echo "Generating plot..."
@@ -37,8 +37,7 @@ set key right bottom
 set grid
 set term png
 set output "$fPNG"
-plot "$fDAT" using 2:3 with lines lw 2 title "Serie",\
-   "$fDAT1" using 2:3 with lines lw 2 title "Bucle3"
+plot "$fDAT" using 2:3 with lines lw 2 title "Serie", "$fDAT2" using 2:3 with lines lw 2 title "Bucle3"
 replot
 quit
 END_GNUPLOT
@@ -54,7 +53,7 @@ set term png
 set output "$fPNG2"
 
 plot "$fDAT" using 2:4 with lines lw 2 title "Serie",\
-   "$fDAT1" using 2:4 with lines lw 2 title "Bucle3"
+   "$fDAT2" using 2:4 with lines lw 2 title "Bucle3"
 replot
 quit
 END_GNUPLOT
