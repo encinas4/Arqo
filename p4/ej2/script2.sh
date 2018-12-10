@@ -19,7 +19,7 @@ fPNG=grafica1.png
 fPNG1=grafica2.png
 fPNG2=grafica3.png
 
-
+rm -f fPNG fPNG1 fPNG2
 
 echo "Generando las graficas..."
 # llamar a gnuplot para generar el gráfico y pasarle directamente por la entrada
@@ -66,7 +66,7 @@ set grid
 set term png
 set output "$fPNG2"
 
-plot "$fDAT" using 1:3 with lines lw 2 title "Serie",\
+plot "$fDATAUX" using 1:3 with lines lw 2 title "Serie",\
     "$fDAT1" using 1:3 with lines lw 2 title "Thread1",\
     "$fDAT2" using 1:3 with lines lw 2 title "Thread2",\
     "$fDAT4" using 1:3 with lines lw 2 title "Thread4",\
