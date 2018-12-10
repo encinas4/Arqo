@@ -10,10 +10,9 @@ fDAT=serie.dat
 
 fDATAUX=auxiliar.dat
 fDAT1=auxiliar1.dat
+fDAT2=auxiliar2.dat
 fDAT4=auxiliar4.dat
-fDAT7=auxiliar7.dat
-fDAT10=auxiliar10.dat
-fDAT13=auxiliar13.dat
+fDAT8=auxiliar8.dat
 fDAT16=auxiliar16.dat
 
 fPNG=grafica1.png
@@ -47,11 +46,11 @@ set key right bottom
 set grid
 set term png
 set output "$fPNG1"
-plot "$fDAT1" using 1:2 with lines lw 2 title "Thread1",\
+plot "$fDATAUX" using 1:2 with lines lw 2 title "Serie",\
+    "$fDAT1" using 1:2 with lines lw 2 title "Thread1",\
+    "$fDAT2" using 1:2 with lines lw 2 title "Thread2",\
     "$fDAT4" using 1:2 with lines lw 2 title "Thread4",\
-    "$fDAT7" using 1:2 with lines lw 2 title "Thread7",\
-    "$fDAT10" using 1:2 with lines lw 2 title "Thread10",\
-    "$fDAT13" using 1:2 with lines lw 2 title "Thread13",\
+    "$fDAT8" using 1:2 with lines lw 2 title "Thread8",\
     "$fDAT16" using 1:2 with lines lw 2 title "Thread16"
 replot
 quit
@@ -67,11 +66,11 @@ set grid
 set term png
 set output "$fPNG2"
 
-plot "$fDAT1" using 1:3 with lines lw 2 title "Thread1",\
+plot "$fDAT" using 1:3 with lines lw 2 title "Serie",\
+    "$fDAT1" using 1:3 with lines lw 2 title "Thread1",\
+    "$fDAT2" using 1:3 with lines lw 2 title "Thread2",\
     "$fDAT4" using 1:3 with lines lw 2 title "Thread4",\
-    "$fDAT7" using 1:3 with lines lw 2 title "Thread7",\
-    "$fDAT10" using 1:3 with lines lw 2 title "Thread10",\
-    "$fDAT13" using 1:3 with lines lw 2 title "Thread13",\
+    "$fDAT8" using 1:3 with lines lw 2 title "Thread8",\
     "$fDAT16" using 1:3 with lines lw 2 title "Thread16"
 replot
 quit
